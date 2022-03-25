@@ -7,39 +7,75 @@ const server = app.listen(PORT, function() {
   console.log(`Listening on port ${PORT}`);
   console.log(`http://localhost:${PORT}`);
 });
+const formatMessage = require('./utils/messages');
+const {
+  userJoin,
+  getCurrentUser,
+  userLeave,
+  getRoomUsers
+} = require('./utils/users');
 
 app.use(express.static("public"));
+
+const botName = 'Socket Io Admin';
 
 const io = socket(server, {
   allowEIO3: true
 });
 
-const activeUsers = new Set();
-
 io.on("connection", function(socket) {
+
   console.log("Made socket connection");
 
-  // join chat per user
-  socket.on("new user", function(data) {   
-    socket.userId = data;
-    activeUsers.add(data);
-    io.emit("new user", [...activeUsers]);
+  socket.on('joinRoom', ({ username, room }) => {
+    const user = userJoin(socket.id, username, room);
+
+    socket.join(user.room);
+
+    // welcome current user
+    socket.emit('message', formatMessage(botName, 'Welcome to chatty app'));
+
+    // broadcast when a user enter
+    socket.broadcast
+    .to(user.room)
+    .emit(
+      'message',
+      formatMessage(botName, `${username} has joined the chat`)
+    );
+
+    // send users to room info
+    io.to(user.room).emit('roomUsers', {
+      room: user.room,
+      users: getRoomUsers(user.room)
+    });
+  });
+
+  // listened chat messages
+  socket.on('chatMessage', msg => {
+    const user = getCurrentUser(socket.id);
+
+    io.to(user.room).emit('message', formatMessage(user.username, msg));
   });
 
   // leave chat per user
   socket.on("disconnect", () => {
-    activeUsers.delete(socket.userId);
-    io.emit("user disconnected", socket.userId);
+    const user = userLeave(socket.id);
+
+    if (user) {
+      io.to(user.room).emit(
+        'message',
+        formatMessage(botName, `${user.username} has left the chat`)
+      );
+
+      io.to(user.room).emit('roomUsers', {
+        room: user.room, 
+        users: getRoomUsers(user.room)
+      });
+    
+
+    }
+
   });
 
-  // chat message
-  socket.on("chat message", function(data) {
-    io.emit("chat message", data);
-  });
-
-  // live typing
-  socket.on("typing", function(data) {
-    socket.broadcast.emit("typing", data);
-  });
 
 });

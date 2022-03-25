@@ -12,5 +12,5 @@ if you want to learn about socket-io.
 ### Feature
 ---
 - [x] Real time user join
-- [ ] Chat in a room between users
-
+- [x] Chat in a room between users
+- [x] Real-time join or leave users 
