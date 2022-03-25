@@ -14,3 +14,11 @@ if you want to learn about socket-io.
 - [x] Real time user join
 - [x] Chat in a room between users
 - [x] Real-time join or leave users 
+
+### How to Install
+---
+
+1. clone this repo to your machine or download the zip file in the right corner above 
+2. run `npm install` in terminal
+3. run `npm run watch` in terminal
+4. open https://localhost:5000 
