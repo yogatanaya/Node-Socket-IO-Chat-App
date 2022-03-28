@@ -22,3 +22,11 @@ if you want to learn about socket-io.
 2. run `npm install` in terminal
 3. run `npm run watch` in terminal
 4. open https://localhost:5000 
+
+### PHP Client + Using ElephantIO
+----
+#### How to test ?
+----
+
+1. cd to /php-client folder 
+2. run on terminal `php server.php`
